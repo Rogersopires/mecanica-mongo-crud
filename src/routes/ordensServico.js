@@ -10,6 +10,7 @@ router.post("/", async (req, res) => {
     const ordemPopulada = await OrdemServico.findById(ordemServico._id)
       .populate("cliente_id", "nome email telefone")
       .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
       .populate("servicos.servico_id", "nome descricao preco")
       .populate("pecas.peca_id", "nome marca preco_unitario");
     
@@ -25,6 +26,7 @@ router.get("/", async (req, res) => {
     const ordens = await OrdemServico.find()
       .populate("cliente_id", "nome email telefone")
       .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
       .populate("servicos.servico_id", "nome descricao preco")
       .populate("pecas.peca_id", "nome marca preco_unitario")
       .sort({ data_entrada: -1 });
@@ -41,6 +43,7 @@ router.get("/:id", async (req, res) => {
     const ordem = await OrdemServico.findById(req.params.id)
       .populate("cliente_id", "nome email telefone")
       .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
       .populate("servicos.servico_id", "nome descricao preco")
       .populate("pecas.peca_id", "nome marca preco_unitario");
     
@@ -263,6 +266,67 @@ router.get("/:id/calcular-total", async (req, res) => {
     res.json({ valor_total: valorTotal });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Buscar ordens por oficina
+router.get("/oficina/:oficinaId", async (req, res) => {
+  try {
+    const ordens = await OrdemServico.find({ oficina_id: req.params.oficinaId })
+      .populate("cliente_id", "nome email telefone")
+      .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
+      .populate("servicos.servico_id", "nome descricao preco")
+      .populate("pecas.peca_id", "nome marca preco_unitario")
+      .sort({ data_entrada: -1 });
+    
+    res.json(ordens);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Remover serviço da ordem
+router.delete("/:id/servicos/:servicoIndex", async (req, res) => {
+  try {
+    const ordem = await OrdemServico.findById(req.params.id);
+    if (!ordem) return res.status(404).json({ message: "Ordem de serviço não encontrada" });
+    
+    ordem.servicos.splice(req.params.servicoIndex, 1);
+    await ordem.save();
+    
+    const ordemAtualizada = await OrdemServico.findById(ordem._id)
+      .populate("cliente_id", "nome email telefone")
+      .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
+      .populate("servicos.servico_id", "nome descricao preco")
+      .populate("pecas.peca_id", "nome marca preco_unitario");
+    
+    res.json(ordemAtualizada);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Remover peça da ordem
+router.delete("/:id/pecas/:pecaIndex", async (req, res) => {
+  try {
+    const ordem = await OrdemServico.findById(req.params.id);
+    if (!ordem) return res.status(404).json({ message: "Ordem de serviço não encontrada" });
+    
+    ordem.pecas.splice(req.params.pecaIndex, 1);
+    await ordem.save();
+    
+    const ordemAtualizada = await OrdemServico.findById(ordem._id)
+      .populate("cliente_id", "nome email telefone")
+      .populate("veiculo_id", "marca modelo ano placa")
+      .populate("oficina_id", "nome telefone email")
+      .populate("servicos.servico_id", "nome descricao preco")
+      .populate("pecas.peca_id", "nome marca preco_unitario");
+    
+    res.json(ordemAtualizada);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 

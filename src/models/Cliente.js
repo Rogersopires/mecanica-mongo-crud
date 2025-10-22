@@ -17,7 +17,15 @@ const clienteSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Email é obrigatório']
-  }
+  },
+  veiculos: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Veiculo"
+  }],
+  oficinas: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Oficina"
+  }]
 });
 
 export default mongoose.model("Cliente", clienteSchema);

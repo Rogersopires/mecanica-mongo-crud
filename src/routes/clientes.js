@@ -36,4 +36,77 @@ router.delete("/:id", async (req, res) => {
   res.json({ message: "Cliente removido com sucesso" });
 });
 
+// Vincular veículo ao cliente
+router.post("/:id/veiculos/:veiculoId", async (req, res) => {
+  try {
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { veiculos: req.params.veiculoId } },
+      { new: true }
+    ).populate('veiculos');
+    if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+    res.json(cliente);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Vincular oficina ao cliente
+router.post("/:id/oficinas/:oficinaId", async (req, res) => {
+  try {
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { oficinas: req.params.oficinaId } },
+      { new: true }
+    ).populate('oficinas');
+    if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+    res.json(cliente);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Listar cliente com veículos e oficinas
+router.get("/:id/completo", async (req, res) => {
+  try {
+    const cliente = await Cliente.findById(req.params.id)
+      .populate('veiculos')
+      .populate('oficinas');
+    if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+    res.json(cliente);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Remover veículo do cliente
+router.delete("/:id/veiculos/:veiculoId", async (req, res) => {
+  try {
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { veiculos: req.params.veiculoId } },
+      { new: true }
+    ).populate('veiculos');
+    if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+    res.json(cliente);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Remover oficina do cliente
+router.delete("/:id/oficinas/:oficinaId", async (req, res) => {
+  try {
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { oficinas: req.params.oficinaId } },
+      { new: true }
+    ).populate('oficinas');
+    if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+    res.json(cliente);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 export default router;

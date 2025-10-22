@@ -9,7 +9,15 @@ const oficinaSchema = new mongoose.Schema({
     cep: String
   },
   telefone: String,
-  email: String
+  email: String,
+  clientes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Cliente"
+  }],
+  ordensServico: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "OrdemServico"
+  }]
 });
 
 export default mongoose.model("Oficina", oficinaSchema);
